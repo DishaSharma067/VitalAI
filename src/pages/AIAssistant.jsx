@@ -68,7 +68,7 @@ function AIAssistant() {
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#080C14", color: "#E8EDF5", fontFamily: "'DM Sans','Segoe UI',sans-serif" }}>
+    <div className="assistant-shell" style={{ display: "flex", minHeight: "100vh", background: "#080C14", color: "#E8EDF5", fontFamily: "'DM Sans','Segoe UI',sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
         *{box-sizing:border-box}
@@ -76,6 +76,16 @@ function AIAssistant() {
         button:hover{opacity:.82;transform:translateY(-1px)}
         @keyframes vt-dot{0%,100%{opacity:.25}50%{opacity:.8}}
         @keyframes vt-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+        @media (max-width: 900px) {
+          .assistant-shell { flex-direction: column !important; }
+          .assistant-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+          .assistant-main { padding: 18px 16px !important; }
+          .assistant-suggestions-grid { grid-template-columns: 1fr !important; padding-left: 0 !important; }
+          .assistant-chat-bubble { max-width: 100% !important; }
+          .assistant-input-row { flex-direction: column !important; }
+          .assistant-input-row input,
+          .assistant-input-row button { width: 100% !important; }
+        }
       `}</style>
 
       {/* Ambient */}
@@ -84,7 +94,7 @@ function AIAssistant() {
       </div>
 
       {/* Sidebar */}
-      <div style={{ width: 210, background: "rgba(255,255,255,.025)", borderRight: "1px solid rgba(255,255,255,.06)", display: "flex", flexDirection: "column", padding: "26px 14px", gap: 6, flexShrink: 0, zIndex: 10, backdropFilter: "blur(20px)" }}>
+      <div className="assistant-sidebar" style={{ width: 210, background: "rgba(255,255,255,.025)", borderRight: "1px solid rgba(255,255,255,.06)", display: "flex", flexDirection: "column", padding: "26px 14px", gap: 6, flexShrink: 0, zIndex: 10, backdropFilter: "blur(20px)" }}>
         <a href="/dashboard" style={{ textDecoration: "none" }}>
           <div style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", background: "linear-gradient(135deg,#52D68A,#4ECDC4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 28, paddingLeft: 8, cursor: "pointer" }}>VitalAI</div>
         </a>
@@ -118,7 +128,7 @@ function AIAssistant() {
       </div>
 
       {/* Main chat area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "30px 36px", gap: 20, overflow: "hidden", position: "relative", zIndex: 1 }}>
+      <div className="assistant-main" style={{ flex: 1, display: "flex", flexDirection: "column", padding: "30px 36px", gap: 20, overflow: "hidden", position: "relative", zIndex: 1 }}>
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.03em", margin: 0, background: "linear-gradient(135deg,#fff 60%,rgba(255,255,255,.4))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>AI Health Assistant</h1>
           <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,.33)", fontSize: 13 }}>Ask anything — I have access to your real-time health data.</p>
@@ -140,7 +150,7 @@ function AIAssistant() {
                   </div>
                 </div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,.28)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, paddingLeft: 52 }}>Try asking…</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingLeft: 52 }}>
+                <div className="assistant-suggestions-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingLeft: 52 }}>
                   {SUGGESTIONS.map((q, i) => (
                     <button key={i} onClick={() => setInput(q)}
                       style={{ background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 10, padding: "9px 13px", color: "rgba(255,255,255,.55)", fontSize: 12, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
@@ -157,7 +167,7 @@ function AIAssistant() {
                 {m.role === "ai" && (
                   <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#52D68A,#4ECDC4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>◆</div>
                 )}
-                <div style={{ maxWidth: "72%", padding: "11px 16px", borderRadius: m.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px", background: m.role === "user" ? "rgba(82,214,138,.13)" : "rgba(255,255,255,.06)", border: `1px solid ${m.role === "user" ? "rgba(82,214,138,.22)" : "rgba(255,255,255,.07)"}`, color: "rgba(255,255,255,.85)", fontSize: 14, lineHeight: 1.65 }}>
+                <div className="assistant-chat-bubble" style={{ maxWidth: "72%", padding: "11px 16px", borderRadius: m.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px", background: m.role === "user" ? "rgba(82,214,138,.13)" : "rgba(255,255,255,.06)", border: `1px solid ${m.role === "user" ? "rgba(82,214,138,.22)" : "rgba(255,255,255,.07)"}`, color: "rgba(255,255,255,.85)", fontSize: 14, lineHeight: 1.65 }}>
                   {m.text}
                 </div>
                 {m.role === "user" && (
@@ -179,7 +189,7 @@ function AIAssistant() {
           </div>
 
           {/* Input bar */}
-          <div style={{ display: "flex", gap: 10, borderTop: "1px solid rgba(255,255,255,.06)", paddingTop: 14, marginTop: 4 }}>
+          <div className="assistant-input-row" style={{ display: "flex", gap: 10, borderTop: "1px solid rgba(255,255,255,.06)", paddingTop: 14, marginTop: 4 }}>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}

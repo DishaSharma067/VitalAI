@@ -302,7 +302,7 @@ function Dashboard() {
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+      <div className="dashboard-stats-grid" style={{ display: "grid", gap: 12 }}>
         {[
           { label: "Heart Rate", value: data?.heartRate || 72, unit: "BPM",  color: "#FF6B6B", spark: WEEKLY_DATA.map(d => d.hr),                     icon: "♥" },
           { label: "Sleep",      value: data?.sleep     || 6.4,unit: "hrs",  color: "#B8A9E0", spark: WEEKLY_DATA.map(d => d.sleep),                   icon: "◗" },
@@ -323,7 +323,7 @@ function Dashboard() {
       </div>
 
       {/* Middle row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.1fr", gap: 12 }}>
+      <div className="dashboard-row-grid" style={{ display: "grid", gap: 12 }}>
         {/* Heart orb */}
         <div style={{ ...card, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, gap: 10 }}>
           <div style={secTitle}>Live Heart Rate</div>
@@ -369,7 +369,7 @@ function Dashboard() {
       </div>
 
       {/* Chart + actions */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 12 }}>
+      <div className="dashboard-chart-grid" style={{ display: "grid", gap: 12 }}>
         <div style={{ ...card }}>
           <div style={secTitle}>Health Analytics</div>
           <div style={{ height: 240 }}><HealthChart /></div>
@@ -398,7 +398,7 @@ function Dashboard() {
       {/* AI Insights */}
       <div style={{ ...card }}>
         <div style={secTitle}>AI Insights</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+        <div className="dashboard-ai-grid" style={{ display: "grid", gap: 10 }}>
           {[
             { icon: "⚠", color: "#F7C948", text: "Sleep dropped 12% — 2 nights under 6h. Aim for 10 PM bedtime tonight.", tag: "Action" },
             { icon: "✓", color: "#52D68A", text: "Hydration improving consistently. You're on a 4-day water streak!", tag: "Win" },
@@ -557,7 +557,7 @@ function Dashboard() {
         </div>
         <button onClick={generateWeeklyReport} style={{ ...btn("#B8A9E0"), padding: "10px 20px" }}>{reportLoading ? "Writing…" : "✦ Generate Story"}</button>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+      <div className="dashboard-week-grid" style={{ display: "grid", gap: 8 }}>
         {WEEKLY_DATA.map((d, i) => (
           <div key={i} style={{ ...card, padding: "10px 12px", textAlign: "center" }}>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,.33)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{d.day}</div>
@@ -633,7 +633,7 @@ function Dashboard() {
   const tabContent = { dashboard: renderDashboard, analytics: renderAnalytics, smarthome: renderSmartHome, breathe: renderBreathe, report: renderReport, chat: renderChat };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#080C14", color: "#E8EDF5", fontFamily: "'DM Sans','Segoe UI',sans-serif", position: "relative" }}>
+    <div className="dashboard-shell" style={{ display: "flex", minHeight: "100vh", background: "#080C14", color: "#E8EDF5", fontFamily: "'DM Sans','Segoe UI',sans-serif", position: "relative" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
         *{box-sizing:border-box}
@@ -642,6 +642,22 @@ function Dashboard() {
         input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;cursor:pointer}
         button:hover{opacity:.82;transform:translateY(-1px)}
         @keyframes vt-breathe{0%,100%{opacity:.25}50%{opacity:.6}}
+        @media (max-width: 900px) {
+          .dashboard-shell { flex-direction: column !important; }
+          .dashboard-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+          .dashboard-main { padding: 18px 16px !important; }
+          .dashboard-stats-grid,
+          .dashboard-row-grid,
+          .dashboard-chart-grid,
+          .dashboard-ai-grid,
+          .dashboard-week-grid,
+          .dashboard-smart-grid { grid-template-columns: 1fr !important; }
+          .dashboard-row-grid > div,
+          .dashboard-chart-grid > div,
+          .dashboard-ai-grid > div,
+          .dashboard-week-grid > div,
+          .dashboard-smart-grid > div { min-width: 0; }
+        }
       `}</style>
 
       {/* Ambient glow */}
@@ -651,7 +667,7 @@ function Dashboard() {
       </div>
 
       {/* Left nav */}
-      <div style={{ width: 210, background: "rgba(255,255,255,.025)", borderRight: "1px solid rgba(255,255,255,.06)", display: "flex", flexDirection: "column", padding: "26px 14px", gap: 3, flexShrink: 0, zIndex: 10, backdropFilter: "blur(20px)" }}>
+      <div className="dashboard-sidebar" style={{ width: 210, background: "rgba(255,255,255,.025)", borderRight: "1px solid rgba(255,255,255,.06)", display: "flex", flexDirection: "column", padding: "26px 14px", gap: 3, flexShrink: 0, zIndex: 10, backdropFilter: "blur(20px)" }}>
         <div style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", background: "linear-gradient(135deg,#52D68A,#4ECDC4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 28, paddingLeft: 8 }}>VitalAI</div>
         {tabs.map(t => (
           <button key={t.id}
@@ -675,7 +691,7 @@ function Dashboard() {
       </div>
 
       {/* Main */}
-      <div style={{ flex: 1, overflow: "auto", padding: "30px 32px", position: "relative", zIndex: 1 }}>
+      <div className="dashboard-main" style={{ flex: 1, overflow: "auto", padding: "30px 32px", position: "relative", zIndex: 1 }}>
         {(tabContent[activeTab] || renderDashboard)()}
       </div>
     </div>

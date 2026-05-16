@@ -34,15 +34,15 @@ function HealthForm() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-10">
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 sm:p-10">
 
-      <div className="w-full max-w-2xl bg-slate-900 p-10 rounded-3xl">
+      <div className="w-full max-w-xl sm:max-w-2xl bg-slate-900 p-6 sm:p-10 rounded-3xl">
 
-        <h1 className="text-5xl font-bold text-cyan-400 mb-10 text-center">
+        <h1 className="text-5xl sm:text-6xl font-bold text-cyan-400 mb-10 text-center">
           Health Details
         </h1>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           <input
             type="number"

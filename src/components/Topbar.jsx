@@ -20,7 +20,7 @@ function Topbar() {
   }
 
   return (
-    <div className="flex justify-between items-center mb-10">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
 
       <div>
 
@@ -34,7 +34,7 @@ function Topbar() {
 
       </div>
 
-      <div className="backdrop-blur-xl bg-white/5 border border-white/10 px-8 py-5 rounded-3xl">
+      <div className="backdrop-blur-xl bg-white/5 border border-white/10 px-8 py-5 rounded-3xl w-full md:w-auto">
 
         <p className="text-cyan-400 text-lg font-semibold mb-2">
           AI Health Score

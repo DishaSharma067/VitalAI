@@ -8,9 +8,9 @@ function Login() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-slate-950">
+    <div className="h-screen flex items-center justify-center bg-slate-950 p-4">
 
-      <div className="bg-slate-900 p-10 rounded-3xl w-[400px]">
+      <div className="bg-slate-900 p-6 sm:p-10 rounded-3xl w-full max-w-md mx-4 sm:mx-auto">
 
         <h1 className="text-4xl font-bold text-cyan-400 mb-6 text-center">
           VitalAI
