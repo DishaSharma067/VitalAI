@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
 function AIAssistant() {
   const [healthData, setHealthData] = useState(null);
@@ -35,19 +39,9 @@ function AIAssistant() {
       const ctx = `User health data: HR=${d?.heartRate || 72}bpm, Sleep=${d?.sleep || 6.4}h, Calories=${d?.calories || 1840}kcal, Water=${d?.water || 1.8}L.`;
       const msgs = history.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: `You are VitalAI, a brilliant personal health AI. ${ctx} Be warm, specific, and concise (2-3 sentences max unless more detail is requested). You have full access to the user's real-time health data — never say otherwise.`,
-          messages: msgs,
-        }),
-      });
-
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || "I'm here to help!";
+      const prompt = `You are VitalAI, a brilliant personal health AI. ${ctx} Be warm, specific, and concise (2-3 sentences max unless more detail is requested). You have full access to the user's real-time health data — never say otherwise.\n\nConversation:\n${history.map(m => `${m.role === "user" ? "User" : "AI"}: ${m.text}`).join("\n")}`;
+      const result = await model.generateContent(prompt);
+      const reply = result.response?.text?.() || "I'm here to help!";
       setMessages([...history, { role: "ai", text: reply }]);
     } catch {
       setMessages([...history, { role: "ai", text: "Connection issue. Please retry." }]);
