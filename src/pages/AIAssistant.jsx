@@ -1,10 +1,23 @@
 import { useState, useRef, useEffect } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+const groqAI = async (prompt) => {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 1000
+    })
+  });
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || "";
+};
 
 function AIAssistant() {
   const [healthData, setHealthData] = useState(null);
@@ -40,9 +53,8 @@ function AIAssistant() {
       const msgs = history.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
 
       const prompt = `You are VitalAI, a brilliant personal health AI. ${ctx} Be warm, specific, and concise (2-3 sentences max unless more detail is requested). You have full access to the user's real-time health data — never say otherwise.\n\nConversation:\n${history.map(m => `${m.role === "user" ? "User" : "AI"}: ${m.text}`).join("\n")}`;
-      const result = await model.generateContent(prompt);
-      const reply = result.response?.text?.() || "I'm here to help!";
-      setMessages([...history, { role: "ai", text: reply }]);
+      const reply = await groqAI(prompt);
+      setMessages([...history, { role: "ai", text: reply || "I'm here to help!" }]);
     } catch {
       setMessages([...history, { role: "ai", text: "Connection issue. Please retry." }]);
     }

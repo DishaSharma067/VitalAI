@@ -1,12 +1,25 @@
 import HealthChart from "../charts/HealthChart";
 import { useEffect, useState, useRef } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+const groqAI = async (prompt) => {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 1000
+    })
+  });
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || "";
+};
 
 const buildWeeklyData = (base) => {
   const hr  = Number(base?.heartRate) || 72;
@@ -167,19 +180,14 @@ export default function Dashboard() {
 
   const W = buildWeeklyData(data);
 
-  const gemini = async (prompt) => {
-    const result = await model.generateContent(prompt);
-    return result.response?.text?.() || "";
-  };
-
   const genReport = async () => {
     setReportLoading(true); setTab("report");
     try {
       const sum = W.map(d=>`${d.day}: HR=${d.hr}bpm, Sleep=${d.sleep.toFixed(1)}h, Steps=${d.steps}, Stress=${d.stress}%, Calories=${d.calories}kcal`).join("\n");
-      setReport(await gemini(
+      setReport(await groqAI(
         `You are VitalAI's health narrator. Write a warm weekly health story like a letter from a personal health coach. 3-4 paragraphs, specific, empathetic, actionable. Mention real numbers. No bullet points, no markdown headers. Flowing narrative prose.\n\nMy health data:\n${sum}\n\nProfile: Age=${data.age||"unknown"}, Weight=${data.weight||"unknown"}kg. Write my weekly health story.`
       ));
-    } catch(e) { setReport(`⚠ Could not generate: ${e.message}\n\nFix: Add VITE_GEMINI_API_KEY=your_key to your .env file, then restart the dev server.`); }
+    } catch(e) { setReport(`⚠ Could not generate: ${e.message}\n\nFix: Add VITE_GROQ_API_KEY=your_key to your .env file, then restart the dev server.`); }
     setReportLoading(false);
   };
 
@@ -187,7 +195,7 @@ export default function Dashboard() {
     if (insights.length>0) return;
     setInsightsLoading(true);
     try {
-      const text = await gemini(
+      const text = await groqAI(
         `Return ONLY a JSON array of 3 objects. Each: { icon: emoji, color: hex, tag: string, text: string }. No markdown, no explanation.\n\nHealth: HR=${data.heartRate}bpm, Sleep=${data.sleep}h, Water=${data.water}L, Calories=${data.calories}kcal, Age=${data.age}, Weight=${data.weight}kg. Give 3 insights.`
       );
       setInsights(JSON.parse(text.replace(/```json|```/g,"").trim()));
@@ -205,10 +213,10 @@ export default function Dashboard() {
     setSuggLoading(true);
     try {
       const devs = devices.map(d=>`${d.name}:${d.status}`).join(", ");
-      setSuggestion(await gemini(
+      setSuggestion(await groqAI(
         `Smart home health optimizer. ONE specific, actionable recommendation. Friendly. Max 2 sentences.\n\nHealth: HR=${data.heartRate}bpm, Sleep=${data.sleep}h. Evening. Devices: ${devs}. What to adjust for better sleep?`
       ));
-    } catch(e) { setSuggestion(`Error: ${e.message}. Check VITE_GEMINI_API_KEY in .env`); }
+    } catch(e) { setSuggestion(`Error: ${e.message}. Check VITE_GROQ_API_KEY in .env`); }
     setSuggLoading(false);
   };
 
@@ -218,9 +226,8 @@ export default function Dashboard() {
     const h=[...msgs,{role:"user",text:m}]; setMsgs(h); setChatLoading(true);
     try {
       const prompt = `You are VitalAI. User: HR=${data.heartRate}bpm, Sleep=${data.sleep}h, Calories=${data.calories}kcal, Water=${data.water}L, Age=${data.age}, Weight=${data.weight}kg. Warm, concise, 2-3 sentences.\n\nConversation:\n${h.map(x => `${x.role === "user" ? "User" : "Assistant"}: ${x.text}`).join("\n")}`;
-      const result = await model.generateContent(prompt);
-      const text = result.response?.text?.() || "I'm here to help!";
-      setMsgs([...h,{role:"ai",text}]);
+      const text = await groqAI(prompt);
+      setMsgs([...h,{role:"ai",text: text || "I'm here to help!"}]);
     } catch(e) { setMsgs([...h,{role:"ai",text:`Error: ${e.message}`}]); }
     setChatLoading(false);
   };
